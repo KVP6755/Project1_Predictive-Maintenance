@@ -16,13 +16,12 @@ import os
 # 1:LOAD DATASETS
 
 # AI4I Predictive Maintenance Dataset
-ai4i = pd.read_csv(r'C:\Users\varni\OneDrive\Desktop\ai4i2020.csv')
+ai4i = pd.read_csv('data/ai4i2020.csv')
 
 # Daily weather dataset
-weather = pd.read_parquet(r'C:\Users\varni\OneDrive\Desktop\daily_weather.parquet')
-
+weather = pd.read_parquet('data/daily_weather.parquet')
 # City-to-weather-station mapping
-cities = pd.read_csv(r'C:\Users\varni\OneDrive\Desktop\cities.csv')
+cities = pd.read_csv('data/cities.csv')
 
 
 # 2: BASIC DATA INSPECTION
@@ -132,7 +131,7 @@ fused=pd.merge(ai4i,weather_slim,on='date',how='left')
 print("fused shape:",fused.shape)
 print("missing values:\n", fused.isnull().sum())
 
-#REMOVE TEMPORARY COLUMNS
+#10:REMOVE TEMPORARY COLUMNS
 fused = fused.drop(columns=['datetime'])
 
 #Forward fill weather observations
@@ -144,8 +143,8 @@ print("missing after fill:",fused.isnull().sum().sum())
 
 #11: SAVE FUSED DATASET
 
-output_path=r'C:\Users\varni\PycharmProjects\varnika\Predictive Maintenance\ai4i_fused.csv'
-fused.to_csv(output_path,index=False)
+output_path=r'data/ai4i_fused.csv'
+fused.to_csv(output_path, index=False)
 
 print("Saved successfully!")
 print("Final shape:", fused.shape)

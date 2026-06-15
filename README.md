@@ -7,6 +7,8 @@ This project uses the **AI4I 2020 Predictive Maintenance Dataset** (fused with s
 
 ## Week 1: IoT Telemetry Ingestion & Signal Processing
 **Contributor:** Subhashree Behera
+**Contributor:** Vishnupriyan
+
 
 ### What Was Done
 | Step | Description |
@@ -39,3 +41,26 @@ This project uses the **AI4I 2020 Predictive Maintenance Dataset** (fused with s
 
 ### Why This Matters
 Rolling window statistics capture **short-term trends and instability** in sensor readings — a key early signal that a machine is degrading before it fully fails. These features feed directly into the LightGBM classifier in Week 3.
+
+## Sensors Processed
+- Air Temperature
+- Process Temperature
+- Rotational Speed
+- Torque
+- Tool Wear
+
+## Result
+- Original Columns: 21
+- New Features Added: 15
+- Final Columns: 36
+
+## Contextual Data Fusion
+This project combines machine telemetry data with external weather data.
+
+### Weather Features
+- Average Temperature
+- Minimum Temperature
+- Maximum Temperature
+- Precipitation
+- Wind Speed
+- Sea Level Pressure

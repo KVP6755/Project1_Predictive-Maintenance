@@ -6,8 +6,11 @@ This project uses the **AI4I 2020 Predictive Maintenance Dataset** (fused with s
 ---
 
 ## Week 1: IoT Telemetry Ingestion & Signal Processing
-**Contributor:** Subhashree Behera
-**Contributor:** Vishnupriyan
+**Contributor:
+-Subhashree Behera
+-Vishnupriyan(Team lead)
+-Shilpa
+-Varnika
 
 
 ### What Was Done

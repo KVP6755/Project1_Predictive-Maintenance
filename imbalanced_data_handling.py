@@ -76,7 +76,7 @@ compare_class_distribution(
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, average_precision_score
 
-def plot_precion_recall(model, X_test, y_test,label="model"):
+def plot_precision_recall(model, X_test, y_test,label="model"):
     """
      Plots the Precision-Recall curve for a fitted model.
     Use this instead of accuracy — accuracy is misleading on

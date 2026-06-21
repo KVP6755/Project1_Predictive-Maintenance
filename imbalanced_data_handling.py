@@ -101,3 +101,41 @@ def plot_precion_recall(model, X_test, y_test,label="model"):
     return precision, recall, thresholds
 # Test the function works using our Day 2 model
 plot_precision_recall(model_balanced, X_test, y_test, label="balanced_rf_test")
+
+#8. ROC-AUC curve plotting function
+
+from sklearn.metrics import roc_curve, auc
+
+def plot_roc_auc(model, X_test, y_test, label="model"):
+    """
+    Plots the ROC curve and calculates AUC (Area Under Curve).
+    AUC = 0.5 means random guessing; AUC = 1.0 means perfect separation.
+    """
+    probs = model.predict_proba(X_test)[:, 1]
+    fpr, tpr, thresholds = roc_curve(y_test, probs)
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure(figsize=(6, 5))
+    plt.plot(fpr, tpr, label=f'{label} (AUC = {roc_auc:.3f})')
+    plt.plot([0, 1], [0, 1], 'k--', label='Random guess baseline')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(f'roc_curve_{label}.png')
+    plt.show()
+
+    return fpr, tpr, roc_auc
+
+# Test the function works using our Day 2 model
+plot_roc_auc(model_balanced, X_test, y_test, label="balanced_rf_test")
+
+# 9. Summary — what this script provides to the team
+print("\n" + "=" * 50)
+print("TRACK 3 DELIVERABLES READY:")
+print("=" * 50)
+print("1. SMOTE-resampled training data: X_train_smote, y_train_smote")
+print("2. class_weight='balanced' model setup: model_balanced")
+print("3. plot_precision_recall(model, X_test, y_test, label) function")
+print("4. plot_roc_auc(model, X_test, y_test, label) function")

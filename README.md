@@ -1,94 +1,75 @@
+# Project1_Predictive-Maintenance: Machine Failure Pipeline
 
-# Project1_Predictive-Maintenance
-# Predictive Maintenance Project
-
-## Overview
-This project uses the **AI4I 2020 Predictive Maintenance Dataset** (fused with simulated weather data) to engineer time-series features from machine sensor readings, supporting failure prediction in Week 3.
-
+An end-to-end machine learning system designed to predict equipment failures using rolling telemetry data fused with historical environmental conditions. This repository contains the data ingestion, exploratory analysis, time-series feature engineering, and data imbalance handling components.
 
 ---
 
-## Week 1: IoT Telemetry Ingestion & Signal Processing
-**Contributor:
--Subhashree Behera
--Vishnupriyan(Team lead)
--Shilpa
--Varnika
+## 📊 Project Status & Progress Tracker
 
+| Milestone | Focus | Key Output | Status |
+| :--- | :--- | :--- | :--- |
+| **Week 1** | Ingestion, EDA & Feature Engineering | Fused dataset with 15 rolling window features | ✅ Complete |
+| **Week 2** | Handling Severe Data Imbalance | Stratified sampling, SMOTE pipelines & evaluation plots | ✅ Complete |
+| **Week 3** | Predictive Modeling | Classifiers, optimization & ensemble methods | 🚀 Up Next |
 
-### What Was Done
-| Step | Description |
-|------|-------------|
-| 1 | Loaded fused dataset (`ai4i_fused.csv`) — 10,000 rows × 21 columns |
-| 2 | Cleaned column names, verified zero null values |
-| 3 | Sorted chronologically by `date` for valid time-series analysis |
-| 4 | Applied rolling window (size=5) on 5 sensor columns |
-| 5 | Generated rolling mean, std, and variance for each sensor |
+---
 
-### Sensors Processed
-- Air temperature [K]
-- Process temperature [K]
-- Rotational speed [rpm]
-- Torque [Nm]
-- Tool wear [min]
+## 🕒 Week 1: IoT Telemetry Ingestion, EDA & Feature Engineering
 
-### Result
-| Metric | Value |
-|--------|-------|
-| Original columns | 21 |
-| New features added | 15 (5 sensors × 3 stats) |
-| Final columns | 36 |
-| Rows | 10,000 (no rows dropped — `min_periods=1` used) |
+### 1. Exploratory Data Analysis (EDA)
+* Inspecting dataset structural patterns and summary statistics.
+* Analyzing the highly skewed baseline distribution of the target variable (`Machine failure`).
+* Creating distribution visualizations for all five primary core operational telemetry markers.
+* Generating a Pearson correlation heatmap to establish colinear relationships and minimize multi-collinearity during feature selections.
 
-### Key Files
-- `data/ai4i_fused.csv` — input dataset
-- `data/ai4i_rolling_features.csv` — output with rolling features
-- `notebooks/week1_rolling_window.ipynb` — feature engineering notebook
+### 2. Time-Series Feature Engineering
+The pipeline processes the chronologically ordered raw dataset to convert standard telemetry into historical, trend-based features. Rolling statistical windows extract indicators of degradation or mechanical friction over time.
 
-### Why This Matters
-Rolling window statistics capture **short-term trends and instability** in sensor readings — a key early signal that a machine is degrading before it fully fails. These features feed directly into the LightGBM classifier in Week 3.
+* **Dataset Scale:** Loaded fused dataset (`ai4i_fused.csv`) containing 10,000 baseline observations.
+* **Rolling Configurations:** Applied a rolling window size of **5 cycles** (`min_periods=1` enforced to preserve total data shape).
+* **Statistical Extrapolations:** Extracted rolling **mean**, **standard deviation**, and **variance** for all primary machine sensors.
 
-## Sensors Processed
-- Air Temperature
-- Process Temperature
-- Rotational Speed
-- Torque
-- Tool Wear
+### ⚙️ Sensor & Contextual Metrics Tracked
+* **Machine Telemetry (Rolling Stats Applied):** Air temperature [K], Process temperature [K], Rotational speed [rpm], Torque [Nm], Tool wear [min].
+* **Contextual Weather Features Fused:** Average Temperature, Minimum Temperature, Maximum Temperature, Precipitation, Wind Speed, Sea Level Pressure.
 
-## Result
-- Original Columns: 21
-- New Features Added: 15
-- Final Columns: 36
+### Data Dimensions Summary
+* **Original Columns:** 21
+* **New Rolling Features Generated:** 15 (5 core sensors × 3 historical metrics)
+* **Final Transformed Dataset:** 36 columns, 10,000 rows (zero rows dropped)
 
-## Contextual Data Fusion
-This project combines machine telemetry data with external weather data.
+---
 
-### Weather Features
-- Average Temperature
-- Minimum Temperature
-- Maximum Temperature
-- Precipitation
-- Wind Speed
-- Sea Level Pressure
+## ⚖️ Week 2: Handling Data Imbalance (Pipeline Setup)
 
-## Week 1 – Exploratory Data Analysis (EDA)
+Predictive maintenance records are intrinsically highly imbalanced. In this framework, severe target skewness is observed, with a **~3.4% machine failure rate** against ~96.6% normal operations. Standard accuracy scoring is an unviable metric. Week 2 addresses this structural risk via parallel data balancing strategies.
 
-### Work Completed
+### 1. Pipeline Protections & Data Splits
+* Implemented a clean **Stratified Train/Test Split ($80/20$)** mapping via `stratify=y`. This locks identical failure/non-failure ratios across both internal partitions prior to any transformations.
+* Removed target leakages by isolating sub-failure types (`TWF`, `HDF`, `PWF`, `OSF`, `RNF`) and index strings (`UDI`, `Product ID`, `date`) away from features $X$.
 
-* Loaded and explored the AI4I Predictive Maintenance dataset.
-* Performed dataset inspection using data overview and summary statistics.
-* Analyzed machine failure distribution.
-* Created distribution plots for:
+### 2. Imbalance Remediation Strategies Setup
+* **Synthetic Sampling Engine:** Configured SMOTE (Synthetic Minority Over-sampling Technique) to automatically scale the active minority class to an exact $50/50$ ratio. *Enforced strictly inside the training set partition only to prevent out-of-sample data leakage.*
+* **Algorithmic Weighting Alternative:** Built an integrated alternative configuration using an enterprise Scikit-Learn `RandomForestClassifier(class_weight='balanced')` trained directly on un-resampled distributions for benchmark contrasts.
 
-  * Air Temperature
-  * Process Temperature
-  * Rotational Speed
-  * Torque
-  * Tool Wear
-* Generated a correlation heatmap to study relationships among sensor variables.
-* Documented observations and insights from each visualization.
+### 📈 Baseline Evaluation Utilities & Results
+To correctly assess minority prediction performance, specialized visual curves are integrated, defaulting to **Average Precision (AP)** and **Area Under ROC** over raw accuracy metrics.
 
-### Outcome
+* **Precision-Recall Curve Average Precision (AP):** `0.708`
+* **Area Under the ROC Curve (ROC-AUC):** `0.960`
 
-The analysis provided an understanding of machine operating conditions, sensor behavior, feature distributions, and relationships among variables. These insights support feature engineering and predictive maintenance modeling in later stages of the project.
-=======
+---
+
+## 📂 Repository File Guide
+
+* `data/ai4i_fused.csv` — Primary input dataset containing raw telemetry fused with environmental metrics.
+* `data/ai4i_rolling_features.csv` — Feature engineering output ledger containing the final 36-column transformed telemetry.
+* `notebooks/week1_rolling_window.ipynb` — Core interactive notebook containing the exploratory plotting analysis and rolling window design.
+* `src/imbalance_handling.py` — Production pipeline containing data split logic, SMOTE generation, and curve export functions.
+
+---
+
+## 🛠️ Infrastructure Setup & Dependencies
+Ensure your Python environment contains the necessary scientific packages before deploying models:
+```bash
+pip install pandas scikit-learn imbalanced-learn matplotlib

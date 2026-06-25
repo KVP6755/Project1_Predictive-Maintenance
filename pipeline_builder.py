@@ -121,3 +121,77 @@ def validate_class_distribution(y_train, y_val, fold_num):
         'train_failure_rate': train_failure_rate,
         'val_failure_rate': val_failure_rate
     }
+# ============================================================
+# FUNCTION 3: build_cv_pipeline  (CORE FUNCTION)
+# ============================================================
+
+def build_cv_pipeline(X, y, n_splits=N_SPLITS):
+    """
+    Build a 5-fold Stratified Cross-Validation split structure.
+
+    This is the CORE function of pipeline_builder.py.
+    It creates all 5 train/validation splits while maintaining
+    class balance in each fold.
+
+    IMPORTANT — What this function does NOT do:
+        - Does NOT apply SMOTE (that is smote_balancer.py)
+        - Does NOT train any model (that is lgbm_model.py)
+        - Does NOT evaluate metrics (that is tuner_evaluation.py)
+
+    This clean separation prevents data leakage — SMOTE will
+    only be applied to X_train inside each fold, never to X_val.
+
+    Args:
+        X        (pd.DataFrame): feature matrix (30 columns)
+        y        (pd.Series)   : binary target (0/1)
+        n_splits (int)         : number of folds (default=5)
+
+    Returns:
+        folds (list of dicts): each dict contains:
+            {
+                'fold'   : fold number (1-5),
+                'X_train': training features,
+                'X_val'  : validation features,
+                'y_train': training labels,
+                'y_val'  : validation labels
+            }
+    """
+    skf = StratifiedKFold(
+        n_splits=n_splits,
+        shuffle=True,
+        random_state=RANDOM_STATE
+    )
+
+    folds = []
+
+    print("=" * 50)
+    print(f"BUILDING {n_splits}-FOLD CV PIPELINE")
+    print("=" * 50)
+
+    for fold_num, (train_idx, val_idx) in enumerate(
+        skf.split(X, y), start=1
+    ):
+        X_train = X.iloc[train_idx].reset_index(drop=True)
+        X_val   = X.iloc[val_idx].reset_index(drop=True)
+        y_train = y.iloc[train_idx].reset_index(drop=True)
+        y_val   = y.iloc[val_idx].reset_index(drop=True)
+
+        # Validate class balance per fold
+        stats = validate_class_distribution(
+            y_train, y_val, fold_num
+        )
+
+        folds.append({
+            'fold'   : fold_num,
+            'X_train': X_train,
+            'X_val'  : X_val,
+            'y_train': y_train,
+            'y_val'  : y_val,
+            'stats'  : stats
+        })
+
+    print("=" * 50)
+    print(f"Pipeline built: {len(folds)} folds ready")
+    print("=" * 50)
+
+    return folds

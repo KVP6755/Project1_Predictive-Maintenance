@@ -86,3 +86,38 @@ def load_and_prepare_data(data_path=DATA_PATH):
 # ── Quick test ──────────────────────────────────────────────
 if __name__ == "__main__":
     X, y = load_and_prepare_data()
+# ============================================================
+# FUNCTION 2: validate_class_distribution
+# ============================================================
+
+def validate_class_distribution(y_train, y_val, fold_num):
+    """
+    Verify that each fold maintains the same failure ratio
+    as the full dataset (~3.39%).
+
+    This is the key proof that StratifiedKFold is working
+    correctly — if folds were random, failure rates would
+    vary significantly between folds.
+
+    Args:
+        y_train  (pd.Series): training fold target labels
+        y_val    (pd.Series): validation fold target labels
+        fold_num (int)      : fold number (1-5) for display
+
+    Returns:
+        dict: failure rates for train and validation splits
+    """
+    train_failure_rate = y_train.mean() * 100
+    val_failure_rate   = y_val.mean() * 100
+
+    print(f"  Fold {fold_num} | "
+          f"Train failures: {y_train.sum()} "
+          f"({train_failure_rate:.2f}%) | "
+          f"Val failures: {y_val.sum()} "
+          f"({val_failure_rate:.2f}%)")
+
+    return {
+        'fold': fold_num,
+        'train_failure_rate': train_failure_rate,
+        'val_failure_rate': val_failure_rate
+    }

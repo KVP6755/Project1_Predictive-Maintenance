@@ -195,3 +195,42 @@ def build_cv_pipeline(X, y, n_splits=N_SPLITS):
     print("=" * 50)
 
     return folds
+
+# ============================================================
+# FUNCTION 4: get_fold
+# ============================================================
+
+def get_fold(folds, fold_num):
+    """
+    Retrieve a specific fold by number from the folds list.
+
+    This helper allows Member 2 (SMOTE) and Member 3 (LightGBM)
+    to easily access individual folds without indexing manually.
+
+    Args:
+        folds    (list): output from build_cv_pipeline()
+        fold_num (int) : fold to retrieve (1-5)
+
+    Returns:
+        dict: single fold with X_train, X_val, y_train, y_val
+
+    Example:
+        fold_1 = get_fold(folds, 1)
+        X_train = fold_1['X_train']
+        y_train = fold_1['y_train']
+    """
+    if fold_num < 1 or fold_num > len(folds):
+        raise ValueError(
+            f"fold_num must be between 1 and {len(folds)}, "
+            f"got {fold_num}"
+        )
+
+    fold = folds[fold_num - 1]
+
+    print(f"Fold {fold_num} retrieved:")
+    print(f"  X_train shape: {fold['X_train'].shape}")
+    print(f"  X_val shape  : {fold['X_val'].shape}")
+    print(f"  y_train failures: {fold['y_train'].sum()}")
+    print(f"  y_val failures  : {fold['y_val'].sum()}")
+
+    return fold

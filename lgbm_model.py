@@ -67,3 +67,41 @@ if __name__=="__main__":
     print("Model B params: ", model_b.get_params())
 
     print("LightGBM initialization working")
+
+
+
+# 3. Train with early stopping
+def train_lgbm(model, X_train, y_train, X_val, y_val, early_stopping_rounds=50):
+    """
+    Trains the LightGBM model with early stopping to prevent overfitting.
+
+    Early stopping monitors validation loss during training and stops
+    automatically if it hasn't improved after N rounds — preventing
+    the model from memorizing training data.
+
+    Parameters:
+        model                 : LGBMClassifier from get_lgbm_model()
+        X_train, y_train      : training data (already SMOTE balanced)
+        X_val, y_val          : validation data (never SMOTE'd)
+        early_stopping_rounds : stop if no improvement after N rounds
+
+    Returns:
+        model : trained LGBMClassifier
+    """
+    callbacks = [
+        lgb.early_stopping(stopping_rounds=early_stopping_rounds, verbose=True),
+        lgb.log_evaluation(period=50)  # print metrics every 50 rounds
+    ]
+
+    model.fit(
+        X_train, y_train,
+        eval_set=[(X_val, y_val)],
+        eval_metric='binary_logloss',
+        callbacks=callbacks
+    )
+
+    print(f"\n[LightGBM] Training complete.")
+    print(f"[LightGBM] Best iteration: {model.best_iteration_}")
+
+    return model
+

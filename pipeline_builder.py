@@ -273,4 +273,33 @@ def summarize_pipeline(folds):
     print(f"Leakage safe   : SMOTE NOT applied here")
     print("=" * 60)
 
-    
+# ============================================================
+# MAIN — Full Pipeline Test
+# ============================================================
+
+if __name__ == "__main__":
+
+    print("\n>>> RUNNING FULL PIPELINE TEST\n")
+
+    # Step 1: Load data
+    X, y = load_and_prepare_data()
+
+    # Step 2: Build CV pipeline
+    folds = build_cv_pipeline(X, y)
+
+    # Step 3: Print summary
+    summarize_pipeline(folds)
+
+    # Step 4: Test get_fold helper
+    print("\n>>> TESTING get_fold() HELPER")
+    fold_1 = get_fold(folds, 1)
+
+    # Step 5: Confirm pipeline is ready for SMOTE + LightGBM
+    print("\n>>> PIPELINE READY")
+    print("Member 2 (SMOTE) can now call:")
+    print("  fold = get_fold(folds, n)")
+    print("  X_resampled, y_resampled = smote_balancer(fold['X_train'],")
+    print("                                            fold['y_train'])")
+    print("\nMember 3 (LightGBM) can now call:")
+    print("  model = lgbm_model.train(X_resampled, y_resampled)")
+    print("  preds = model.predict(fold['X_val'])")

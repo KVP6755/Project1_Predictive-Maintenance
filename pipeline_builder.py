@@ -234,3 +234,43 @@ def get_fold(folds, fold_num):
     print(f"  y_val failures  : {fold['y_val'].sum()}")
 
     return fold
+
+# ============================================================
+# FUNCTION 5: summarize_pipeline
+# ============================================================
+
+def summarize_pipeline(folds):
+    """
+    Print a complete summary report of the CV pipeline.
+
+    Shows fold sizes, failure rates, and confirms stratification
+    is working correctly. Use this to document pipeline output
+    in the team report.
+
+    Args:
+        folds (list): output from build_cv_pipeline()
+    """
+    print("\n" + "=" * 60)
+    print("PIPELINE SUMMARY REPORT")
+    print("=" * 60)
+    print(f"{'Fold':<6} {'Train Size':<12} {'Val Size':<10} "
+          f"{'Train Fail%':<13} {'Val Fail%':<10}")
+    print("-" * 60)
+
+    for fold in folds:
+        stats = fold['stats']
+        print(f"{stats['fold']:<6} "
+              f"{len(fold['X_train']):<12} "
+              f"{len(fold['X_val']):<10} "
+              f"{stats['train_failure_rate']:<13.2f} "
+              f"{stats['val_failure_rate']:<10.2f}")
+
+    print("=" * 60)
+    print(f"Total folds    : {len(folds)}")
+    print(f"Features/fold  : {folds[0]['X_train'].shape[1]}")
+    print(f"Strategy       : StratifiedKFold (shuffle=True, "
+          f"random_state=42)")
+    print(f"Leakage safe   : SMOTE NOT applied here")
+    print("=" * 60)
+
+    

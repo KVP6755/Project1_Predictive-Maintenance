@@ -105,3 +105,43 @@ def train_lgbm(model, X_train, y_train, X_val, y_val, early_stopping_rounds=50):
 
     return model
 
+
+
+# 4. Feature importance plot
+
+import matplotlib.pyplot as plt
+
+def plot_feature_importance(model, feature_names, top_n=20):
+    """
+    Plots the top N most important features from the trained
+    LightGBM model.
+
+    LightGBM calculates feature importance by counting how many
+    times each feature was used to split data across all trees
+    (split importance) or by how much each split improved the
+    model (gain importance).
+
+    Parameters:
+        model         : trained LGBMClassifier
+        feature_names : list of column names
+        top_n         : how many top features to display
+    """
+    importance = pd.DataFrame({
+        'feature'   : feature_names,
+        'importance': model.feature_importances_
+    }).sort_values('importance', ascending=False).head(top_n)
+
+    plt.figure(figsize=(10, 6))
+    plt.barh(importance['feature'][::-1], importance['importance'][::-1])
+    plt.xlabel('Feature Importance (split count)')
+    plt.ylabel('Feature')
+    plt.title(f'Top {top_n} LightGBM Feature Importances')
+    plt.tight_layout()
+    plt.savefig('lgbm_feature_importance.png')
+    plt.show()
+
+    print(f"\nTop 5 most important features:")
+    print(importance.head(5).to_string(index=False))
+
+    return importance
+

@@ -12,7 +12,7 @@ File    : lgbm_model.py
 
 import lightgbm as lgb
 import numpy as np
-import pandas
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
 #1 initialize LightGBM with imbalance settings
@@ -53,7 +53,7 @@ def get_lgbm_model(scale_pos_weight = None, use_is_unbalance= False,random_state
             random_state=random_state,
             verbose=-1
         )
-        print("[LightGBM] Initialized with is_unbalanced=True")
+        print("[LightGBM] Initialized with scale_pos_weight={scale_pos_weight}")
 
     return model
 
@@ -128,12 +128,12 @@ def plot_feature_importance(model, feature_names, top_n=20):
     """
     importance = pd.DataFrame({
         'feature'   : feature_names,
-        'importance': model.feature_importances_
+        'importance': model.booster_.feature_importance(importance_type='gain')
     }).sort_values('importance', ascending=False).head(top_n)
 
     plt.figure(figsize=(10, 6))
     plt.barh(importance['feature'][::-1], importance['importance'][::-1])
-    plt.xlabel('Feature Importance (split count)')
+    plt.xlabel("Feature Importance (gain)")
     plt.ylabel('Feature')
     plt.title(f'Top {top_n} LightGBM Feature Importances')
     plt.tight_layout()
@@ -144,4 +144,58 @@ def plot_feature_importance(model, feature_names, top_n=20):
     print(importance.head(5).to_string(index=False))
 
     return importance
+
+
+
+
+# 5. Full integration test
+
+def run_integration_test():
+    """
+    End-to-end test of the full lgbm_model.py pipeline:
+    load data → initialize model → train with early stopping
+    → plot feature importance
+    """
+    print("=" * 50)
+    print("RUNNING INTEGRATION TEST")
+    print("=" * 50)
+
+    # Load data
+    df = pd.read_csv(r'data\ai4i_rolling_features.csv')
+    drop_cols = ['TWF', 'HDF', 'PWF', 'OSF', 'RNF', 'UDI', 'Product ID', 'date']
+    X = df.drop(columns=drop_cols + ['Machine failure'])
+    X = pd.get_dummies(X, columns=['Type'], drop_first=True)
+    import re
+
+    # Clean feature names for LightGBM
+    X.columns = (
+        X.columns
+        .str.replace(r'[^A-Za-z0-9_]', '_', regex=True)
+        .str.replace('_+', '_', regex=True)
+    )
+
+    # Optional: print to verify
+    print(X.columns.tolist())
+
+    y = df['Machine failure']
+
+    # Split
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=0.2, stratify=y, random_state=42
+    )
+
+    # Initialize
+    model = get_lgbm_model(scale_pos_weight=28.5)
+
+    # Train with early stopping
+    model = train_lgbm(model, X_train, y_train, X_val, y_val)
+
+    # Feature importance
+    plot_feature_importance(model, X.columns.tolist(), top_n=15)
+
+    print("\n✓ Integration test complete.")
+    print("  lgbm_model.py is ready to plug into pipeline_builder.py")
+
+if __name__ == "__main__":
+    run_integration_test()
 

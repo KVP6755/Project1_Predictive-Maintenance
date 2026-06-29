@@ -1,200 +1,75 @@
+# Project1_Predictive-Maintenance: Machine Failure Pipeline
 
-# Project1_Predictive-Maintenance
-# Predictive Maintenance Project
-
-## Overview
-This project uses the **AI4I 2020 Predictive Maintenance Dataset** (fused with simulated weather data) to engineer time-series features from machine sensor readings, supporting failure prediction in Week 3.
-
+An end-to-end machine learning system designed to predict equipment failures using rolling telemetry data fused with historical environmental conditions. This repository contains the data ingestion, exploratory analysis, time-series feature engineering, and data imbalance handling components.
 
 ---
 
-## Week 1: IoT Telemetry Ingestion & Signal Processing
-**Contributor:
--Subhashree Behera
--Vishnupriyan(Team lead)
--Shilpa
--Varnika
+## 📊 Project Status & Progress Tracker
 
-
-### What Was Done
-| Step | Description |
-|------|-------------|
-| 1 | Loaded fused dataset (`ai4i_fused.csv`) — 10,000 rows × 21 columns |
-| 2 | Cleaned column names, verified zero null values |
-| 3 | Sorted chronologically by `date` for valid time-series analysis |
-| 4 | Applied rolling window (size=5) on 5 sensor columns |
-| 5 | Generated rolling mean, std, and variance for each sensor |
-
-### Sensors Processed
-- Air temperature [K]
-- Process temperature [K]
-- Rotational speed [rpm]
-- Torque [Nm]
-- Tool wear [min]
-
-### Result
-| Metric | Value |
-|--------|-------|
-| Original columns | 21 |
-| New features added | 15 (5 sensors × 3 stats) |
-| Final columns | 36 |
-| Rows | 10,000 (no rows dropped — `min_periods=1` used) |
-
-### Key Files
-- `data/ai4i_fused.csv` — input dataset
-- `data/ai4i_rolling_features.csv` — output with rolling features
-- `notebooks/week1_rolling_window.ipynb` — feature engineering notebook
-
-### Why This Matters
-Rolling window statistics capture **short-term trends and instability** in sensor readings — a key early signal that a machine is degrading before it fully fails. These features feed directly into the LightGBM classifier in Week 3.
-
-## Sensors Processed
-- Air Temperature
-- Process Temperature
-- Rotational Speed
-- Torque
-- Tool Wear
-
-## Result
-- Original Columns: 21
-- New Features Added: 15
-- Final Columns: 36
-
-## Contextual Data Fusion
-This project combines machine telemetry data with external weather data.
-
-### Weather Features
-- Average Temperature
-- Minimum Temperature
-- Maximum Temperature
-- Precipitation
-- Wind Speed
-- Sea Level Pressure
-
-## Week 1 – Exploratory Data Analysis (EDA)
-
-### Work Completed
-
-* Loaded and explored the AI4I Predictive Maintenance dataset.
-* Performed dataset inspection using data overview and summary statistics.
-* Analyzed machine failure distribution.
-* Created distribution plots for:
-
-  * Air Temperature
-  * Process Temperature
-  * Rotational Speed
-  * Torque
-  * Tool Wear
-* Generated a correlation heatmap to study relationships among sensor variables.
-* Documented observations and insights from each visualization.
-
-### Outcome
-
-The analysis provided an understanding of machine operating conditions, sensor behavior, feature distributions, and relationships among variables. These insights support feature engineering and predictive maintenance modeling in later stages of the project.
-=======
-
-
-
-
-
-
-
-
-# Week 2: Contextual Data Fusion and Feature Engineering (Exploratory Data Analysis (EDA))
-
-## Objective
-
-The objective of Week 2 was to explore and analyze the engineered IoT-weather dataset created by integrating machine telemetry data with external environmental context. The focus was on understanding how contextual weather features may contribute to predictive maintenance applications.
+| Milestone | Focus | Key Output | Status |
+| :--- | :--- | :--- | :--- |
+| **Week 1** | Ingestion, EDA & Feature Engineering | Fused dataset with 15 rolling window features | ✅ Complete |
+| **Week 2** | Handling Severe Data Imbalance | Stratified sampling, SMOTE pipelines & evaluation plots | ✅ Complete |
+| **Week 3** | Predictive Modeling | Classifiers, optimization & ensemble methods | 🚀 Up Next |
 
 ---
 
-## Work Completed
+## 🕒 Week 1: IoT Telemetry Ingestion, EDA & Feature Engineering
 
-### 1. Engineered Dataset Exploration
+### 1. Exploratory Data Analysis (EDA)
+* Inspecting dataset structural patterns and summary statistics.
+* Analyzing the highly skewed baseline distribution of the target variable (`Machine failure`).
+* Creating distribution visualizations for all five primary core operational telemetry markers.
+* Generating a Pearson correlation heatmap to establish colinear relationships and minimize multi-collinearity during feature selections.
 
-* Loaded and inspected the engineered IoT-weather dataset.
-* Verified dataset dimensions, feature inventory, and data quality.
-* Checked for missing values and validated feature engineering outputs.
+### 2. Time-Series Feature Engineering
+The pipeline processes the chronologically ordered raw dataset to convert standard telemetry into historical, trend-based features. Rolling statistical windows extract indicators of degradation or mechanical friction over time.
 
-### 2. External Context Feature Analysis
+* **Dataset Scale:** Loaded fused dataset (`ai4i_fused.csv`) containing 10,000 baseline observations.
+* **Rolling Configurations:** Applied a rolling window size of **5 cycles** (`min_periods=1` enforced to preserve total data shape).
+* **Statistical Extrapolations:** Extracted rolling **mean**, **standard deviation**, and **variance** for all primary machine sensors.
 
-Analyzed engineered weather-related features including:
+### ⚙️ Sensor & Contextual Metrics Tracked
+* **Machine Telemetry (Rolling Stats Applied):** Air temperature [K], Process temperature [K], Rotational speed [rpm], Torque [Nm], Tool wear [min].
+* **Contextual Weather Features Fused:** Average Temperature, Minimum Temperature, Maximum Temperature, Precipitation, Wind Speed, Sea Level Pressure.
 
-* Average Temperature (Rolling Mean, Standard Deviation, Variance)
-* Precipitation (Rolling Mean, Standard Deviation, Variance)
-* Sea Level Pressure (Rolling Mean, Standard Deviation, Variance)
-
-Generated distribution plots to understand environmental variability and contextual trends.
-
-### 3. Machine Failure Distribution Analysis
-
-* Examined the distribution of machine failure records.
-* Identified class imbalance between normal and failure conditions.
-* Visualized failure frequencies using bar charts.
-
-### 4. Engineered Sensor Correlation Analysis
-
-Generated correlation heatmaps for:
-
-* Air Temperature
-* Process Temperature
-* Rotational Speed
-* Torque
-* Tool Wear
-
-This helped identify relationships among machine telemetry features.
-
-### 5. Sensor–Weather Relationship Analysis
-
-Investigated correlations between machine telemetry and contextual weather variables to understand how environmental conditions may influence machine behavior.
-
-### 6. Failure Mode Analysis
-
-Analyzed the distribution of failure categories:
-
-* TWF (Tool Wear Failure)
-* HDF (Heat Dissipation Failure)
-* PWF (Power Failure)
-* OSF (Overstrain Failure)
-* RNF (Random Failure)
-
-Visualized failure mode frequencies and compared their occurrence.
-
-### 7. Tool Wear Lifecycle Analysis
-
-Studied degradation patterns using the engineered Tool Wear rolling mean feature and visualized operational wear trends over time.
+### Data Dimensions Summary
+* **Original Columns:** 21
+* **New Rolling Features Generated:** 15 (5 core sensors × 3 historical metrics)
+* **Final Transformed Dataset:** 36 columns, 10,000 rows (zero rows dropped)
 
 ---
 
-## Key Findings
+## ⚖️ Week 2: Handling Data Imbalance (Pipeline Setup)
 
-* Engineered weather features successfully captured environmental trends and variability.
-* Machine failure events were significantly less frequent than normal operations, indicating class imbalance.
-* Strong relationships were observed among certain machine telemetry features.
-* Contextual weather variables provided additional information beyond machine sensor readings.
-* Tool wear trends demonstrated progressive degradation patterns useful for predictive maintenance.
+Predictive maintenance records are intrinsically highly imbalanced. In this framework, severe target skewness is observed, with a **~3.4% machine failure rate** against ~96.6% normal operations. Standard accuracy scoring is an unviable metric. Week 2 addresses this structural risk via parallel data balancing strategies.
 
----
+### 1. Pipeline Protections & Data Splits
+* Implemented a clean **Stratified Train/Test Split ($80/20$)** mapping via `stratify=y`. This locks identical failure/non-failure ratios across both internal partitions prior to any transformations.
+* Removed target leakages by isolating sub-failure types (`TWF`, `HDF`, `PWF`, `OSF`, `RNF`) and index strings (`UDI`, `Product ID`, `date`) away from features $X$.
 
-## Generated Outputs
+### 2. Imbalance Remediation Strategies Setup
+* **Synthetic Sampling Engine:** Configured SMOTE (Synthetic Minority Over-sampling Technique) to automatically scale the active minority class to an exact $50/50$ ratio. *Enforced strictly inside the training set partition only to prevent out-of-sample data leakage.*
+* **Algorithmic Weighting Alternative:** Built an integrated alternative configuration using an enterprise Scikit-Learn `RandomForestClassifier(class_weight='balanced')` trained directly on un-resampled distributions for benchmark contrasts.
 
-All Week 2 visualizations were saved under:
+### 📈 Baseline Evaluation Utilities & Results
+To correctly assess minority prediction performance, specialized visual curves are integrated, defaulting to **Average Precision (AP)** and **Area Under ROC** over raw accuracy metrics.
 
-```text
-plots/week 2/
-```
-
-including:
-
-* Weather feature distribution plots
-* Machine failure distribution chart
-* Engineered sensor correlation heatmap
-* Sensor–weather correlation heatmap
-* Failure mode distribution chart
-* Tool wear lifecycle analysis plot
+* **Precision-Recall Curve Average Precision (AP):** `0.708`
+* **Area Under the ROC Curve (ROC-AUC):** `0.960`
 
 ---
 
-## Conclusion
+## 📂 Repository File Guide
 
-Week 2 focused on contextual feature exploration and visualization. The analysis provided evidence that environmental context and engineered rolling statistics may offer valuable information for predictive maintenance systems and future machine learning model development.
+* `data/ai4i_fused.csv` — Primary input dataset containing raw telemetry fused with environmental metrics.
+* `data/ai4i_rolling_features.csv` — Feature engineering output ledger containing the final 36-column transformed telemetry.
+* `notebooks/week1_rolling_window.ipynb` — Core interactive notebook containing the exploratory plotting analysis and rolling window design.
+* `src/imbalance_handling.py` — Production pipeline containing data split logic, SMOTE generation, and curve export functions.
+
+---
+
+## 🛠️ Infrastructure Setup & Dependencies
+Ensure your Python environment contains the necessary scientific packages before deploying models:
+```bash
+pip install pandas scikit-learn imbalanced-learn matplotlib

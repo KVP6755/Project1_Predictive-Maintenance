@@ -1,3 +1,56 @@
+"""
+================================================================================
+pipeline_builder.py
+================================================================================
+Author      : Subhashree Behera
+Week        : Week 3 — Imbalanced Classification & LightGBM Modeling
+Role        : Pipeline Architect
+
+--------------------------------------------------------------------------------
+Responsibility:
+    Build the core skeletal framework for the 5-fold Stratified Cross-Validation
+    pipeline. This module handles ONLY the data splitting logic — it is completely
+    independent of any specific model or balancing algorithm.
+
+    Other modules (smote_balancer.py, lgbm_model.py) will plug INTO this
+    pipeline structure. This design prevents data leakage by ensuring SMOTE
+    is applied only inside training folds, never touching validation data.
+
+--------------------------------------------------------------------------------
+Why Stratified K-Fold?
+    The dataset has severe class imbalance — only 3.39% failures (339/9996).
+    Standard KFold would create folds with uneven failure distributions.
+    StratifiedKFold guarantees each fold maintains the same 3.39% failure
+    ratio, making evaluation reliable and reproducible.
+
+--------------------------------------------------------------------------------
+Fold Structure (verified on engineered_iot_weather_dataset.csv):
+    Fold 1: Train=7996 (failures=271) | Val=2000 (failures=68)
+    Fold 2: Train=7997 (failures=272) | Val=1999 (failures=67)
+    Fold 3: Train=7997 (failures=271) | Val=1999 (failures=68)
+    Fold 4: Train=7997 (failures=271) | Val=1999 (failures=68)
+    Fold 5: Train=7997 (failures=271) | Val=1999 (failures=68)
+
+--------------------------------------------------------------------------------
+Functions:
+    load_and_prepare_data()     → loads dataset, separates X and y
+    validate_class_distribution() → checks failure rate per fold
+    build_cv_pipeline()         → creates StratifiedKFold split structure
+    get_fold()                  → returns one specific fold by index
+    summarize_pipeline()        → prints full pipeline summary report
+
+--------------------------------------------------------------------------------
+Dataset:
+    engineered_iot_weather_dataset.csv
+    9,996 rows × 30 feature columns + 1 target column (Machine failure)
+
+--------------------------------------------------------------------------------
+Usage:
+    from pipeline_builder import build_cv_pipeline, load_and_prepare_data
+    X, y = load_and_prepare_data('data/engineered_iot_weather_dataset.csv')
+    folds = build_cv_pipeline(X, y)
+================================================================================
+"""
 # ============================================================
 # IMPORTS
 # ============================================================

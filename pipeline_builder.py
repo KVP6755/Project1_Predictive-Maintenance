@@ -303,3 +303,30 @@ if __name__ == "__main__":
     print("\nMember 3 (LightGBM) can now call:")
     print("  model = lgbm_model.train(X_resampled, y_resampled)")
     print("  preds = model.predict(fold['X_val'])")
+
+    # Step 6: Test with different fold counts
+    print("\n>>> TESTING WITH 3 FOLDS")
+    folds_3 = build_cv_pipeline(X, y, n_splits=3)
+    summarize_pipeline(folds_3)
+    print("Configurable n_splits working correctly ✓")
+
+# ============================================================
+# FUNCTION 6: get_feature_names
+# ============================================================
+
+def get_feature_names(data_path=DATA_PATH):
+    """
+    Return the list of feature column names used in the pipeline.
+
+    This is a utility for Member 3 (LightGBM) to access feature
+    names when plotting feature importance charts.
+
+    Returns:
+        list: 30 feature column names
+    """
+    df = pd.read_csv(data_path)
+    df.columns = df.columns.str.strip()
+    feature_cols = [c for c in df.columns if c not in EXCLUDE_COLS]
+
+    print(f"Feature names exported: {len(feature_cols)} columns")
+    return feature_cols

@@ -68,5 +68,31 @@ Usage:
 ================================================================================
 """
 
+# ============================================================
+# IMPORTS
+# ============================================================
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from sklearn.model_selection import train_test_split
 
+# ============================================================
+# CONSTANTS
+# ============================================================
+RANDOM_STATE = 42        # MUST match Week 3 pipeline_builder.py
+                          # so we test on the SAME test set the
+                          # model was evaluated on — not a new split
+TEST_SIZE = 0.2
+
+NOISE_LEVELS = [0.05, 0.10, 0.15]   # 5%, 10%, 15%
+
+DATA_PATH = Path('data/engineered_iot_weather_dataset.csv')
+OUTPUT_DIR = Path('data/noisy')
+
+EXCLUDE_COLS = [
+    'UDI', 'Product ID', 'Type', 'date',
+    'Machine failure',
+    'TWF', 'HDF', 'PWF', 'OSF', 'RNF'
+]
+TARGET_COL = 'Machine failure'
 

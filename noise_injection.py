@@ -96,3 +96,53 @@ EXCLUDE_COLS = [
 ]
 TARGET_COL = 'Machine failure'
 
+# ============================================================
+# FUNCTION 1: load_test_set
+# ============================================================
+
+def load_test_set(data_path=DATA_PATH):
+    """
+    Load the dataset and recreate the exact same test split
+    used during model training (Week 3).
+
+    Using the same random_state=42 and test_size=0.2 ensures
+    we inject noise into the SAME 2000 rows the model was
+    evaluated on, not a different random sample.
+
+    Returns:
+        X_test (pd.DataFrame): 2000 rows x 30 features (clean)
+        y_test (pd.Series)   : 2000 binary labels
+    """
+    df = pd.read_csv(data_path)
+    df.columns = df.columns.str.strip()
+    df[TARGET_COL] = pd.to_numeric(
+        df[TARGET_COL], errors='coerce'
+    ).astype(int)
+
+    feature_cols = [c for c in df.columns if c not in EXCLUDE_COLS]
+    X = df[feature_cols]
+    y = df[TARGET_COL]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y,
+        test_size=TEST_SIZE,
+        stratify=y,
+        random_state=RANDOM_STATE
+    )
+
+    print("=" * 50)
+    print("TEST SET LOADED")
+    print("=" * 50)
+    print(f"Test set size  : {X_test.shape}")
+    print(f"Test failures  : {y_test.sum()} "
+          f"({y_test.mean()*100:.2f}%)")
+    print("=" * 50)
+
+    return X_test.reset_index(drop=True), y_test.reset_index(drop=True)
+
+
+if __name__ == "__main__":
+    X_test, y_test = load_test_set()
+
+    
+

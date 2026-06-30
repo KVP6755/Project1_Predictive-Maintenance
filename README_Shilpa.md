@@ -96,3 +96,80 @@ including:
 ## Conclusion
 
 Week 2 focused on contextual feature exploration and visualization. The analysis provided evidence that environmental context and engineered rolling statistics may offer valuable information for predictive maintenance systems and future machine learning model development.
+
+
+----------------------------------------------------------------------------------------------------------
+
+
+# Week 3: Imbalanced Classification and SMOTE Balancing
+
+## Objective
+
+The objective of Week 3 was to address the severe class imbalance in the predictive maintenance dataset. Since machine failures represent only a small percentage of the observations, a reusable oversampling module was developed using SMOTE techniques. This module is designed to be integrated safely within a 5-Fold Stratified Cross Validation pipeline without introducing data leakage.
+
+## Tasks Completed
+
+- Developed a reusable SMOTE balancing module (smote_balancer.py).
+- Implemented Standard SMOTE for minority class oversampling.
+- Implemented Borderline-SMOTE for generating synthetic samples near the decision boundary.
+- Designed functions to operate only on training data to prevent data leakage.
+- Created reusable helper functions for:
+    - Standard SMOTE balancing
+    - Borderline-SMOTE balancing
+    - Class distribution comparison
+    - Class count retrieval
+- Verified the balancing functions using a separate Jupyter Notebook (week3_smote_testing.ipynb).
+- Confirmed balanced class distributions after oversampling.
+
+## Files Added
+
+    Week 3/
+    ├── smote_balancer.py
+    └── week3_smote_testing.ipynb
+
+## Functions Implemented
+
+1.apply_smote()
+
+    Performs standard SMOTE oversampling on the training dataset.
+
+    Input
+
+    X_train
+    y_train
+
+    Output
+
+    X_resampled
+    y_resampled
+
+2.apply_borderline_smote()
+
+    Applies Borderline-SMOTE to generate synthetic samples near difficult decision boundaries.
+
+    Input
+
+    X_train
+    y_train
+
+    Output
+
+    X_resampled
+    y_resampled
+
+3.compare_class_distribution()
+
+   Compares the target class distribution before and after balancing.
+
+4.get_class_counts()
+
+   Returns the number of samples belonging to each class.
+
+## Validation Results
+
+The implemented balancing methods successfully increased the minority class samples to match the majority class.
+
+
+## Outcome
+
+The Week 3 deliverables provide a reusable imbalance handling module that can be directly integrated into the team's LightGBM training pipeline. By applying SMOTE only within each training fold of Stratified Cross Validation, the implementation prevents data leakage while improving the model's ability to learn from rare machine failure cases.

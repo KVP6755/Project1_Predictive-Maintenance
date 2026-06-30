@@ -76,4 +76,28 @@ evaluation metrics since accuracy is misleading on imbalanced data.
 - `plot_precision_recall(model, X_test, y_test, label)` — reusable evaluation function
 - `plot_roc_auc(model, X_test, y_test, label)` — reusable evaluation function
 
+
+## Week 3 — LightGBM Modeler
+
+**File:** lgbm_model.py
+**Branch:** week3/lgbm-model-varnika
+
+### What I did
+- Built `get_lgbm_model()` — initializes LightGBM with imbalance
+  handling using `scale_pos_weight` (≈28.5) or `is_unbalance=True`
+- Built `train_lgbm()` — trains with early stopping (50 rounds) to
+  prevent overfitting, monitors validation loss
+- Built `plot_feature_importance()` — shows top features the model
+  relies on most
+- Built `run_integration_test()` — verified the full pipeline runs
+  end-to-end without errors
+
+### Result
+Standalone, reusable LightGBM module ready to plug into Member 1's
+CV loop and Member 4's hyperparameter tuning scripts.
+
 ### How to run
+```
+python lgbm_model.py
+```
+

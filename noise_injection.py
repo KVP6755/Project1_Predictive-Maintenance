@@ -181,3 +181,36 @@ def inject_gaussian_noise(series, noise_level, random_state=RANDOM_STATE):
         size=len(series)
     )
     return series + noise
+
+# ============================================================
+# FUNCTION 3: create_noisy_dataset
+# ============================================================
+
+def create_noisy_dataset(X_test, noise_level):
+    """
+    Apply Gaussian noise across all 30 feature columns at once.
+
+    Each column gets its own random seed offset (column index)
+    so noise patterns differ across features — avoiding the
+    unrealistic case where every feature gets identical noise.
+
+    Args:
+        X_test      (pd.DataFrame): clean test features
+        noise_level (float)       : 0.05, 0.10, or 0.15
+
+    Returns:
+        pd.DataFrame: noisy version of X_test, same shape
+    """
+    X_noisy = X_test.copy()
+
+    for i, col in enumerate(X_test.columns):
+        X_noisy[col] = inject_gaussian_noise(
+            X_test[col],
+            noise_level,
+            random_state=RANDOM_STATE + i  # vary seed per column
+        )
+
+    print(f"Applied {int(noise_level*100)}% noise to "
+          f"{X_test.shape[1]} feature columns")
+
+    return X_noisy

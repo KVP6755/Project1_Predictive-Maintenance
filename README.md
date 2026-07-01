@@ -1,103 +1,75 @@
-## Week 1 — Contextual Data Fusion Pipeline
+# Project1_Predictive-Maintenance: Machine Failure Pipeline
 
-**Script:** dataset.py
-**Input:**  data/ai4i2020.csv, data/daily_weather.parquet, data/cities.csv
-**Output:** data/ai4i_fused.csv
+An end-to-end machine learning system designed to predict equipment failures using rolling telemetry data fused with historical environmental conditions. This repository contains the data ingestion, exploratory analysis, time-series feature engineering, and data imbalance handling components.
 
-### What I did
-- Loaded the AI4I 2020 Predictive Maintenance Dataset (10,000 rows, 14 columns)
-- Loaded the Kaggle Global Daily Climate dataset (weather + city lookup)
-- Assigned synthetic hourly timestamps to AI4I, since it has no real
-  timestamps (one reading per hour, starting 2020-01-01)
-- Filtered the weather dataset to Bremen, Germany for 2020-2021
-  (Chennai was preferred but had no weather readings in the dataset)
-- Merged AI4I sensor data with weather data on the date column
-- Filled missing values (forward fill, then column mean)
+---
 
-### Result
-- Final shape: (10,000, 20)
-- 0 missing values
-- Columns: original 14 AI4I sensor/failure columns + 6 weather columns
-  (avg_temp_c, min_temp_c, max_temp_c, precipitation_mm,
-  avg_wind_speed_kmh, avg_sea_level_pres_hpa)
+## 📊 Project Status & Progress Tracker
 
-  
+| Milestone | Focus | Key Output | Status |
+| :--- | :--- | :--- | :--- |
+| **Week 1** | Ingestion, EDA & Feature Engineering | Fused dataset with 15 rolling window features | ✅ Complete |
+| **Week 2** | Handling Severe Data Imbalance | Stratified sampling, SMOTE pipelines & evaluation plots | ✅ Complete |
+| **Week 3** | Predictive Modeling | Classifiers, optimization & ensemble methods | 🚀 Up Next |
 
-## WEEK 2 - Handling Data Imbalance
+---
 
-**Script:** imbalanced_data_handling.py
-**Author:** Varnika Valliammai V
-**Input:**  data/ai4i_rolling_features.csv 
-**Output:** Reusable SMOTE pipeline, class_weight model setup, evaluation plotting functions
+## 🕒 Week 1: IoT Telemetry Ingestion, EDA & Feature Engineering
 
-### Objective
-Set up tools to handle the severe class imbalance in machine failure
-prediction (failures are only ~3.4% of the data), and prepare proper
-evaluation metrics since accuracy is misleading on imbalanced data.
+### 1. Exploratory Data Analysis (EDA)
+* Inspecting dataset structural patterns and summary statistics.
+* Analyzing the highly skewed baseline distribution of the target variable (`Machine failure`).
+* Creating distribution visualizations for all five primary core operational telemetry markers.
+* Generating a Pearson correlation heatmap to establish colinear relationships and minimize multi-collinearity during feature selections.
 
-### What I did
+### 2. Time-Series Feature Engineering
+The pipeline processes the chronologically ordered raw dataset to convert standard telemetry into historical, trend-based features. Rolling statistical windows extract indicators of degradation or mechanical friction over time.
 
-**1. Data preparation**
-- Loaded the rolling-features dataset (sensors + weather + rolling stats)
-- Dropped leakage columns (TWF, HDF, PWF, OSF, RNF — these are
-  components of the target itself, not real predictive features)
-- One-hot encoded the `Type` column (L/M/H)
-- Split into train/test sets BEFORE any oversampling, to prevent
-  synthetic data leakage into the test set
+* **Dataset Scale:** Loaded fused dataset (`ai4i_fused.csv`) containing 10,000 baseline observations.
+* **Rolling Configurations:** Applied a rolling window size of **5 cycles** (`min_periods=1` enforced to preserve total data shape).
+* **Statistical Extrapolations:** Extracted rolling **mean**, **standard deviation**, and **variance** for all primary machine sensors.
 
-**2. SMOTE oversampling**
-- Applied SMOTE (Synthetic Minority Over-sampling Technique) on the
-  training data only
-- Creates synthetic "failure" examples by interpolating between
-  existing ones, balancing the ~28:1 class ratio
+### ⚙️ Sensor & Contextual Metrics Tracked
+* **Machine Telemetry (Rolling Stats Applied):** Air temperature [K], Process temperature [K], Rotational speed [rpm], Torque [Nm], Tool wear [min].
+* **Contextual Weather Features Fused:** Average Temperature, Minimum Temperature, Maximum Temperature, Precipitation, Wind Speed, Sea Level Pressure.
 
-**3. class_weight='balanced' alternative**
-- Set up a Random Forest model using `class_weight='balanced'` as an
-  alternative to SMOTE
-- Instead of altering the data, this penalizes misclassifying the
-  rare failure class more heavily during training
-- Added a comparison helper to view before/after class distributions
+### Data Dimensions Summary
+* **Original Columns:** 21
+* **New Rolling Features Generated:** 15 (5 core sensors × 3 historical metrics)
+* **Final Transformed Dataset:** 36 columns, 10,000 rows (zero rows dropped)
 
-**4. Precision-Recall curve**
-- Built a reusable `plot_precision_recall()` function
-- Accuracy is misleading here — a model predicting "no failure"
-  always would score ~96% accuracy while being useless
-- This curve shows the tradeoff between catching real failures
-  (recall) and avoiding false alarms (precision)
+---
 
-**5. ROC-AUC curve**
-- Built a reusable `plot_roc_auc()` function
-- Plots True Positive Rate vs False Positive Rate across thresholds
-- AUC summarizes overall model separability (0.5 = random, 1.0 = perfect)
+## ⚖️ Week 2: Handling Data Imbalance (Pipeline Setup)
 
-### Result
-- `X_train_smote`, `y_train_smote` — balanced training data ready for modeling
-- `model_balanced` — trained reference Random Forest using class weighting
-- `plot_precision_recall(model, X_test, y_test, label)` — reusable evaluation function
-- `plot_roc_auc(model, X_test, y_test, label)` — reusable evaluation function
+Predictive maintenance records are intrinsically highly imbalanced. In this framework, severe target skewness is observed, with a **~3.4% machine failure rate** against ~96.6% normal operations. Standard accuracy scoring is an unviable metric. Week 2 addresses this structural risk via parallel data balancing strategies.
 
+### 1. Pipeline Protections & Data Splits
+* Implemented a clean **Stratified Train/Test Split ($80/20$)** mapping via `stratify=y`. This locks identical failure/non-failure ratios across both internal partitions prior to any transformations.
+* Removed target leakages by isolating sub-failure types (`TWF`, `HDF`, `PWF`, `OSF`, `RNF`) and index strings (`UDI`, `Product ID`, `date`) away from features $X$.
 
-## Week 3 — LightGBM Modeler
+### 2. Imbalance Remediation Strategies Setup
+* **Synthetic Sampling Engine:** Configured SMOTE (Synthetic Minority Over-sampling Technique) to automatically scale the active minority class to an exact $50/50$ ratio. *Enforced strictly inside the training set partition only to prevent out-of-sample data leakage.*
+* **Algorithmic Weighting Alternative:** Built an integrated alternative configuration using an enterprise Scikit-Learn `RandomForestClassifier(class_weight='balanced')` trained directly on un-resampled distributions for benchmark contrasts.
 
-**File:** lgbm_model.py
-**Branch:** week3/lgbm-model-varnika
+### 📈 Baseline Evaluation Utilities & Results
+To correctly assess minority prediction performance, specialized visual curves are integrated, defaulting to **Average Precision (AP)** and **Area Under ROC** over raw accuracy metrics.
 
-### What I did
-- Built `get_lgbm_model()` — initializes LightGBM with imbalance
-  handling using `scale_pos_weight` (≈28.5) or `is_unbalance=True`
-- Built `train_lgbm()` — trains with early stopping (50 rounds) to
-  prevent overfitting, monitors validation loss
-- Built `plot_feature_importance()` — shows top features the model
-  relies on most
-- Built `run_integration_test()` — verified the full pipeline runs
-  end-to-end without errors
+* **Precision-Recall Curve Average Precision (AP):** `0.708`
+* **Area Under the ROC Curve (ROC-AUC):** `0.960`
 
-### Result
-Standalone, reusable LightGBM module ready to plug into Member 1's
-CV loop and Member 4's hyperparameter tuning scripts.
+---
 
-### How to run
-```
-python lgbm_model.py
-```
+## 📂 Repository File Guide
 
+* `data/ai4i_fused.csv` — Primary input dataset containing raw telemetry fused with environmental metrics.
+* `data/ai4i_rolling_features.csv` — Feature engineering output ledger containing the final 36-column transformed telemetry.
+* `notebooks/week1_rolling_window.ipynb` — Core interactive notebook containing the exploratory plotting analysis and rolling window design.
+* `src/imbalance_handling.py` — Production pipeline containing data split logic, SMOTE generation, and curve export functions.
+
+---
+
+## 🛠️ Infrastructure Setup & Dependencies
+Ensure your Python environment contains the necessary scientific packages before deploying models:
+```bash
+pip install pandas scikit-learn imbalanced-learn matplotlib

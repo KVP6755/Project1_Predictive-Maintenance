@@ -144,5 +144,40 @@ def load_test_set(data_path=DATA_PATH):
 if __name__ == "__main__":
     X_test, y_test = load_test_set()
 
-    
 
+# ============================================================
+# FUNCTION 2: inject_gaussian_noise
+# ============================================================
+
+def inject_gaussian_noise(series, noise_level, random_state=RANDOM_STATE):
+    """
+    Add Gaussian noise to a single feature column, scaled to
+    that feature's own standard deviation.
+
+    Why scale by std?
+        Our 30 features have wildly different ranges — e.g.
+        Air temperature_roll_mean (~300) vs
+        Air temperature_roll_var (~0.001). A fixed noise value
+        like +/-5 would be meaningless for the variance column
+        but invisible for the temperature column. Scaling by
+        each feature's own std makes noise proportional and fair.
+
+    Formula:
+        noisy_value = original_value + N(0, noise_level * std)
+
+    Args:
+        series       (pd.Series): original feature values
+        noise_level  (float)    : 0.05, 0.10, or 0.15
+        random_state (int)      : reproducibility seed
+
+    Returns:
+        pd.Series: noisy version of the input feature
+    """
+    rng = np.random.default_rng(random_state)
+    feature_std = series.std()
+    noise = rng.normal(
+        loc=0,
+        scale=noise_level * feature_std,
+        size=len(series)
+    )
+    return series + noise

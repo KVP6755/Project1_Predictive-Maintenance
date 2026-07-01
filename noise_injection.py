@@ -214,3 +214,16 @@ def create_noisy_dataset(X_test, noise_level):
           f"{X_test.shape[1]} feature columns")
 
     return X_noisy
+
+# Quick test in __main__
+
+if __name__ == "__main__":
+    X_test, y_test = load_test_set()
+
+    # Test single noise level first
+    X_noisy_5pct = create_noisy_dataset(X_test, noise_level=0.05)
+
+    print("\nSample comparison (first feature, first 5 rows):")
+    col = X_test.columns[0]
+    print("Original:", X_test[col].head().values.round(2))
+    print("Noisy 5%:", X_noisy_5pct[col].head().values.round(2))

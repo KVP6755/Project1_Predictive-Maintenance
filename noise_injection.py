@@ -261,3 +261,35 @@ def generate_all_noise_levels(X_test):
     print("=" * 50)
 
     return noisy_datasets
+
+# ============================================================
+# FUNCTION 5: save_noisy_datasets
+# ============================================================
+
+def save_noisy_datasets(noisy_datasets, y_test, output_dir=OUTPUT_DIR):
+    """
+    Save each noisy dataset to CSV for Member 2 to load and
+    evaluate the trained model against.
+
+    The target labels (y_test) are saved alongside each noisy
+    feature set so Member 2 doesn't need to reload the original
+    dataset separately.
+
+    Args:
+        noisy_datasets (dict)      : output from generate_all_noise_levels()
+        y_test         (pd.Series) : true labels (same for all noise levels)
+        output_dir     (Path)      : where to save CSVs
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for level, X_noisy in noisy_datasets.items():
+        # Combine features + labels into one file
+        output_df = X_noisy.copy()
+        output_df['Machine failure'] = y_test.values
+
+        filename = output_dir / f"test_noisy_{int(level*100)}pct.csv"
+        output_df.to_csv(filename, index=False)
+
+        print(f"Saved: {filename} | shape: {output_df.shape}")
+
+    print(f"\nAll noisy datasets saved to {output_dir}/")

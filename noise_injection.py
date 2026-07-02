@@ -227,3 +227,37 @@ if __name__ == "__main__":
     col = X_test.columns[0]
     print("Original:", X_test[col].head().values.round(2))
     print("Noisy 5%:", X_noisy_5pct[col].head().values.round(2))
+
+# ============================================================
+# FUNCTION 4: generate_all_noise_levels
+# ============================================================
+
+def generate_all_noise_levels(X_test):
+    """
+    Generate noisy versions of the test set at all 3 required
+    levels: 5%, 10%, 15%.
+
+    Args:
+        X_test (pd.DataFrame): clean test features
+
+    Returns:
+        dict: {
+            0.05: noisy_df_5pct,
+            0.10: noisy_df_10pct,
+            0.15: noisy_df_15pct
+        }
+    """
+    noisy_datasets = {}
+
+    print("=" * 50)
+    print("GENERATING NOISY DATASETS")
+    print("=" * 50)
+
+    for level in NOISE_LEVELS:
+        noisy_datasets[level] = create_noisy_dataset(X_test, level)
+
+    print("=" * 50)
+    print(f"Generated {len(noisy_datasets)} noisy datasets")
+    print("=" * 50)
+
+    return noisy_datasets

@@ -294,4 +294,7 @@ def save_noisy_datasets(noisy_datasets, y_test, output_dir=OUTPUT_DIR):
 
     print(f"\nAll noisy datasets saved to {output_dir}/")
 
-
+if __name__ == "__main__":
+    X_test, y_test = load_test_set()
+    noisy_datasets = generate_all_noise_levels(X_test)
+    save_noisy_datasets(noisy_datasets, y_test)
